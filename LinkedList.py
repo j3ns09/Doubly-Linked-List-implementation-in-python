@@ -15,23 +15,22 @@ class Node:
         elif not self.previous and self.next:
             self.next.previous = None
 
-    def connect(self, other: object):
+    def connect(self, other: object) -> None:
         if isinstance(other, Node):
             self.next = other
             other.previous = self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Node: data={self.data}, next={bool(self.next)}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.data)
 
 class LinkedList:
-
     def __init__(self, *args):
-        self.head = None
-        self.tail = None
-        self.len = 0
+        self.head : Node | None = None
+        self.tail : Node | None = None
+        self.len : int = 0
 
         for arg in args:
             self.append(arg)
@@ -42,7 +41,7 @@ class LinkedList:
         if self.len < 2:
             self.clear()
         else:
-            self.head = self.head.next
+            self.head : Node = self.head.next
             self.head.previous = None
             self.len -= 1
 
@@ -52,16 +51,16 @@ class LinkedList:
         if self.len < 2:
             self.clear()
         else:
-            self.tail = self.tail.previous
+            self.tail : Node = self.tail.previous
             self.tail.next = None
             self.len -= 1
 
-    def __setitem__(self, index, data) -> None:
+    def __setitem__(self, index : int, data) -> None:
         if index > self.len:
             raise IndexError("Index out of range")
         self[index].data = data
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key : int) -> None:
         if key == 0:
             self.__del_first()
             return
@@ -72,10 +71,10 @@ class LinkedList:
         self[key].disconnect()
         self.len -= 1
 
-    def __mul__(self, other) -> object:
+    def __mul__(self, other : object) -> object:
         if isinstance(other, int):
             new_list : LinkedList = LinkedList()
-            current = self.head
+            current : Node | None = self.head
             for _ in range(self.len * other):
                 if current is None:
                     current = self.head
@@ -84,15 +83,15 @@ class LinkedList:
             return new_list
         raise TypeError("Incorrect type")
 
-    def __imul__(self, other) -> object:
+    def __imul__(self, other : object) -> object:
         return self.__mul__(other)
 
-    def __rmul__(self, other) -> object:
+    def __rmul__(self, other : object) -> object:
         return self.__mul__(other)
 
-    def __add__(self,other) -> object:
+    def __add__(self, other : object) -> object:
         if not isinstance(other, LinkedList):
-            raise TypeError("can't add type "+str(type(other))+" and type "+str(type(self)))
+            raise TypeError("can't add type "+str(type(other))+" and type "+str(type(self))+" using + operator")
 
         self.tail.next = other.head
 
@@ -106,7 +105,7 @@ class LinkedList:
 
     def __eq__(self, value: object) -> bool:
         if isinstance(value, (list, tuple)):
-            k = 0
+            k : int = 0
             for node in self:
                 if node.data != value[k]:
                     return False
@@ -116,8 +115,8 @@ class LinkedList:
             if self.len != value.len:
                 return False
 
-            current_l1 = self.head
-            current_l2 = value.head
+            current_l1 : Node = self.head
+            current_l2 : Node = value.head
 
             while current_l1 or current_l2:
                 if current_l1.data != current_l2.data:
@@ -134,24 +133,25 @@ class LinkedList:
         return self.len
 
     def __iter__(self) -> object:
-        current = self.head
+        current : Node | None = self.head
         while current:
             yield current
             current = current.next
 
-    def __getitem__(self, index) -> Node:
+    def __getitem__(self, index : int) -> Node:
+        if self.len < 1 or index > self.len - 1:
+            raise IndexError("list index out of range")
+
         if index == 0:
             return self.head
         if index == -1:
             return self.tail
 
-        if index > self.len - 1:
-            raise IndexError("list index out of range")
         if index < -1:
             index = self.len + index
 
         if self.len - index < self.len//2:
-            current = self.tail
+            current : Node = self.tail
             for _ in range(self.len - 1 - index):
                 current = current.previous
             return current
@@ -165,7 +165,9 @@ class LinkedList:
         return hash((item for item in self))
 
     def __contains__(self, value) -> bool:
-        current = self.head
+        if not self.head:
+            return False
+        current : Node = self.head
         while current:
             if current.data == value:
                 return True
@@ -182,11 +184,11 @@ class LinkedList:
         return new_list
 
     def __str__(self) -> str:
-        final_string = "["
+        final_string : str = "["
         if not self.head:
             final_string += "]*"
         else:
-            current = self.head
+            current : Node = self.head
             while current:
                 if not current.next:
                     final_string = final_string + str(current.data)+"]*"
@@ -198,8 +200,8 @@ class LinkedList:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def append(self,data) -> None:
-        node = Node(data)
+    def append(self, data) -> None:
+        node : Node = Node(data)
 
         if self.head:
             self.tail.next = node
@@ -214,7 +216,7 @@ class LinkedList:
         if not self.head:
             raise ValueError("LinkedList.remove(data): List is empty")
 
-        current = self.head
+        current : Node = self.head
 
         while current:
             if current.data == data:
@@ -226,11 +228,11 @@ class LinkedList:
         raise ValueError("""LinkedList.remove(data): 
                          Can't remove node as the data is not held by any node""")
 
-    def insert(self,index,data) -> None:
+    def insert(self,index : int,data) -> None:
         if index > self.len:
             raise IndexError("LinkedList.insert(index, data): list index out of range")
 
-        node = Node(data)
+        node : Node = Node(data)
         if index == 0:
             node.next, self.head.previous = self.head, node
             self.head = node
@@ -242,7 +244,7 @@ class LinkedList:
             self.len += 1
             return
 
-        k = 1
+        k : int = 1
         current = self.head.next
         previous = current.previous
         while k != index:
@@ -262,7 +264,7 @@ class LinkedList:
     def sort(self) -> None:
         # O(n²) complexity
         for _ in range(self.len):
-            current = self.head
+            current : Node = self.head
             while current.next:
                 if current.data > current.next.data:
                     current.switch(current.next)
@@ -284,7 +286,7 @@ class LinkedList:
         if not self.head:
             raise ValueError("LinkedList.function(f): List is empty")
 
-        current = self.head
+        current : Node = self.head
         while current:
             current.data = f(current.data)
             current = current.next
@@ -296,7 +298,7 @@ class LinkedList:
             self.head.data, self.tail.data = self.tail.data, self.head.data
             return
 
-        current = self.tail
+        current : Node = self.tail
         while current:
             current.next, current.previous = current.previous, current.next
             current = current.next
@@ -307,7 +309,7 @@ class LinkedList:
             self.head = Node(data)
             return
 
-        node = Node(data)
+        node : Node = Node(data)
         self.head.previous = node
         node.next = self.head
         self.head = node
@@ -328,7 +330,7 @@ class LinkedList:
         return self
 
     def deepcopy(self) -> object:
-        new_list = LinkedList()
+        new_list : LinkedList = LinkedList()
         if not self.head:
             return new_list
 
@@ -337,13 +339,13 @@ class LinkedList:
             new_list.append(data_current)
         return new_list
 
-    def count(self,x) -> int:
+    def count(self, data) -> int:
         if not self.head:
             return 0
 
-        k = 0
+        k : int = 0
         for node in self:
-            if node.data == x:
+            if node.data == data:
                 k += 1
         return k
 
@@ -354,7 +356,7 @@ class LinkedList:
         if self.head.data == data:
             return 0
 
-        k = 0
+        k : int = 0
         for node in self:
             if node.data == data:
                 return k
@@ -362,7 +364,7 @@ class LinkedList:
 
         raise ValueError("LinkedList.index(data): data is not in the list")
 
-    def pop(self, index=-1) -> Node:
+    def pop(self, index : int = -1) -> Node:
         if self.len - index == 1 or index == -1:
             tail = self.tail
             self.__del_last()
@@ -374,7 +376,7 @@ class LinkedList:
                 self.__del_first()
                 return head
             case _:
-                k = 1
+                k : int = 1
                 current = self.head.next
                 while current:
                     if k == index:
